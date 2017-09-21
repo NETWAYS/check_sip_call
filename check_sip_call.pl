@@ -164,7 +164,8 @@ plugin_exit(2, sprintf(
 )) unless $call;
 
 # wait for invite to complete
-$ua->loop($P->opts->timeout, \$invite_final);
+$ua->add_timer($P->opts->timeout, \$timeout_invite);
+$ua->loop($P->opts->timeout, \$invite_final, \$timeout_invite);
 my $time_invite = time();
 
 if ($call->error) {
