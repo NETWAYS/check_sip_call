@@ -63,7 +63,7 @@ sub fix_sip_address {
   my $address = shift;
   my $registrar = shift;
   $address = 'sip:' . $address unless $address =~ /^sip:/;
-  $address = $address . '@' . $registrar unless !$registrar and $address =~ /\@/;
+  $address = $address . '@' . $registrar unless !$registrar or $address =~ /\@/;
   return $address;
 }
 
