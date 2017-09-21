@@ -84,7 +84,7 @@ GNU General Public License for more details.";
 $P = Monitoring::Plugin->new(
   usage => "Usage: %s [-v] -F <SIP-URL> -T <SUP-URL> ",
   license => $license,
-  version => "0.1",
+  version => "0.1.0",
 );
 $P->add_arg(
   spec => 'from|F=s',
