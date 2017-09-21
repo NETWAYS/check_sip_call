@@ -86,6 +86,22 @@ Using full URLs:
   --to sip:0911928850@sipgate.de
 ```
 
+Output for a timed out invite:
+
+    SIP_CALL CRITICAL - Invite ran into timeout after 15 seconds | elapsed_invite=15.00;;;0;;15
+
+Output for a rejected call:
+
+    SIP_CALL CRITICAL - Inviting sip:012345678@sip.example.com failed: Failed with error 22 code=486 | elapsed_invite=9.50;;;0;;15
+
+Output for a successful call:
+
+    SIP_CALL OK - Call successful, finished audio. | elapsed_invite=6.96;;;0;;15 elapsed_talking=10.00;;;0;;15
+
+Output for a successful, but hangup, call:
+
+    SIP_CALL OK - Call successful, peer hung up. | elapsed_invite=4.73;;;0;;15 elapsed_talking=2.52;;;0;;15
+
 ## Installation
 
 On Debian / Ubuntu:
