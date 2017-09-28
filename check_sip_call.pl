@@ -37,16 +37,28 @@ use Time::HiRes qw(time);
 
 my $exited_normally = 0;
 my $P;
+my $ua;
 my $call;
+my $invited = 0;
+my $in_call = 0;
 
 # Fall back to unknown when program exits unexpected
-END {
-  return if $exited_normally;
+sub handle_exit {
   if ($call) {
-    $call->bye;
+    # TODO: this causes weird errors, but it ends the call...
+    $call->cancel() if ($invited);
+    $call->bye() if ($in_call);
+    $call->cleanup;
   }
+  if ($ua) {
+    $ua->cleanup;
+  }
+  return if $exited_normally;
   exit(3);
 }
+END { handle_exit; }
+$SIG{INT} = \&handle_exit;
+$SIG{TERM} = \&handle_exit;
 
 # Handling a normal plugin exit
 sub plugin_exit {
@@ -144,7 +156,7 @@ $P->opts->set('from', fix_sip_address($P->opts->from, $P->opts->registrar));
 $P->opts->set('to', fix_sip_address($P->opts->to, $P->opts->registrar));
 
 # create the user agent
-my $ua = Net::SIP::Simple->new(
+$ua = Net::SIP::Simple->new(
   from => $P->opts->from,
   $P->opts->registrar ? ( registrar => $P->opts->registrar ) : (),
   $P->opts->proxy ? ( outgoing_proxy => $P->opts->proxy ) : (),
@@ -178,6 +190,7 @@ plugin_exit(2, sprintf(
   $P->opts->to,
   $ua->error
 )) unless $call;
+$invited = 1;
 
 # wait for invite to complete
 $ua->add_timer($P->opts->timeout, \$timeout_invite);
@@ -192,9 +205,6 @@ if ($call->error) {
     $time_invite-$time_start,
     $P->opts->timeout
   ));
-
-  $call->cleanup();
-  $ua->cleanup();
 }
 
 # handle timeout during invite
@@ -202,8 +212,7 @@ if ($timeout_invite) {
   $stopvar = undef;
   $call->cancel(cb_final => \$stopvar);
   $ua->loop(5, \$stopvar);
-  $call->cleanup();
-  $ua->cleanup();
+  $invited = 0;
   plugin_exit(2, sprintf(
     'Invite ran into timeout after %d seconds | elapsed_invite=%0.2f;;;0;;%d',
     $P->opts->timeout,
@@ -211,6 +220,10 @@ if ($timeout_invite) {
     $P->opts->timeout
   ));
 }
+
+# call is connected
+$invited = 0;
+$in_call = 1;
 
 # run mainloop
 #$ua->add_timer($P->opts->timeout, \$timeout_call);
@@ -231,7 +244,7 @@ if ($peer_hangup) {
   $call->bye(cb_final => \$stopvar);
   $ua->loop(5, \$stopvar);
 }
-$ua->cleanup();
+$in_call = 0;
 
 plugin_exit(0, sprintf(
   "Call successful, %s. |"
