@@ -59,6 +59,7 @@ sub handle_exit {
 END { handle_exit; }
 $SIG{INT} = \&handle_exit;
 $SIG{TERM} = \&handle_exit;
+$SIG{ALRM} = sub { print "Plugin timed out!\n"; handle_exit; };
 
 # Handling a normal plugin exit
 sub plugin_exit {
@@ -130,6 +131,9 @@ $P->add_arg(
 );
 
 $P->getopts;
+
+# Ensure global timeout, twice the timeout plus buffer
+alarm $P->opts->timeout * 2 + 2;
 
 # handle input values
 unless ($P->opts->registrar) {
