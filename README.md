@@ -60,8 +60,6 @@ Usage: check_sip_call.pl [-v] -F <SIP-URL> -T <SUP-URL>
    Seconds before plugin times out (default: 15)
  -v, --verbose
    Show details for command-line debugging (can repeat up to 3 times)
- -t, --timeout=seconds
-   Timeout for the talking part of the call (Default: 30)
 ```
 
 ## Examples
