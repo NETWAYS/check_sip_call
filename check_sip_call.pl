@@ -128,12 +128,6 @@ $P->add_arg(
   help    => "--expires=seconds\n   Seconds for the register to expire (Default: 300) (Set -1 to disable)",
   default => 300,
 );
-$P->add_arg(
-  spec     => 'timeout|t=s',
-  help     => "-t, --timeout=seconds\n   Timeout for the talking part of the call (Default: 30)",
-  default  => 30,
-  required => 1,
-);
 
 $P->getopts;
 
