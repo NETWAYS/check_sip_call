@@ -169,9 +169,6 @@ $ua->loop($P->opts->timeout, \$invite_final, \$timeout_invite);
 my $time_invite = time();
 
 if ($call->error) {
-  $call->cleanup();
-  $ua->cleanup();
-
   plugin_exit(2, sprintf(
     'Inviting %s failed: %s | elapsed_invite=%0.2f;;;0;;%d',
     $P->opts->to,
@@ -179,6 +176,9 @@ if ($call->error) {
     $time_invite-$time_start,
     $P->opts->timeout
   ));
+
+  $call->cleanup();
+  $ua->cleanup();
 }
 
 # handle timeout during invite
