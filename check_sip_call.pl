@@ -112,6 +112,11 @@ $P->add_arg(
   help => "-P, --password=password\n   password for authenticating to SIP registrar or proxy",
 );
 $P->add_arg(
+  spec    => 'expires=s',
+  help    => "--expires=seconds\n   Seconds for the register to expire (Default: 300) (Set -1 to disable)",
+  default => 300,
+);
+$P->add_arg(
   spec     => 'timeout|t=s',
   help     => "-t, --timeout=seconds\n   Timeout for the talking part of the call (Default: 30)",
   default  => 30,
@@ -145,6 +150,17 @@ my $ua = Net::SIP::Simple->new(
   $P->opts->proxy ? ( outgoing_proxy => $P->opts->proxy ) : (),
   $P->opts->password ? ( auth => [$P->opts->username, $P->opts->password] ) : (),
 );
+
+# Register to the server
+if ($P->opts->expires > 0) {
+  $ua->register(expires => 300);
+
+  plugin_exit(2, sprintf(
+    'Register failed %s: %s',
+    $P->opts->to,
+    $ua->error
+  )) if $ua->error;
+}
 
 # setup call
 my ($invite_final, $peer_hangup, $stopvar, $timeout_invite, $timeout_call);
