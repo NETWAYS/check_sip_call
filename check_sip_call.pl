@@ -178,7 +178,9 @@ if ($P->opts->expires > 0) {
 my ($invite_final, $peer_hangup, $stopvar, $timeout_invite, $timeout_call);
 my $time_start = time();
 $call = $ua->invite($P->opts->to,
-  init_media    => $ua->rtp('media_recv_echo', undef, 10),
+  # TODO: echo has been disabled with -1, while testing
+  # loop hangs when RTP connects and the media is echoed
+  init_media    => $ua->rtp('media_recv_echo', undef, -1),
   asymetric_rtp => 1,
   recv_bye      => \$peer_hangup,
   send_bye      => \$stopvar,
@@ -226,10 +228,10 @@ $invited = 0;
 $in_call = 1;
 
 # run mainloop
-#$ua->add_timer($P->opts->timeout, \$timeout_call);
-#while (!$stopvar and !$timeout_call and !$peer_hangup) {
-$ua->loop($P->opts->timeout, \$timeout_call, \$stopvar, \$peer_hangup);
-#}
+$ua->add_timer($P->opts->timeout, \$timeout_call);
+while (!$stopvar and !$timeout_call and !$peer_hangup) {
+  $ua->loop(1, \$timeout_call, \$stopvar, \$peer_hangup);
+}
 my $time_finished = time();
 
 # handling the end of call
