@@ -110,6 +110,10 @@ On Debian / Ubuntu:
 
 	/usr/lib/nagios/plugin/check_sip_call --help
 
+## Known Issues
+
+Net::SIP wants to establish a IPv6 connection. Workaround: Use IPv4 address
+
 ## License
 
     Copyright (C) 2017 NETWAYS GmbH <info@netways.de>
